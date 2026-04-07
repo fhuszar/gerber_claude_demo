@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="225" height="150" viewBox="0 0 75 50"
+     xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .board { fill: #BBDEFB; stroke: #333; stroke-width: 0.5; }
+    .pad { fill: #FFD700; stroke: #FF8C00; stroke-width: 0.2; }
+    .text { font-family: monospace; font-size: 2; fill: #333; }
+  </style>
+
+  <!-- Board outline -->
+  <rect class="board" x="0" y="0" width="75" height="50" />
+
+  <!-- Title -->
+  <text class="text" x="5" y="15">LED Resistor Array</text>
+
+  <!-- Component pads visualization -->
+  <circle class="pad" cx="28.609798" cy="0.86995" r="0.8" />
+  <circle class="pad" cx="28.609798" cy="4.67995" r="0.8" />
+  <circle class="pad" cx="28.609798" cy="8.489949999999999" r="0.8" />
+  <circle class="pad" cx="28.609798" cy="12.299949999999999" r="0.8" />
+  <circle class="pad" cx="28.609798" cy="16.109949999999998" r="0.8" />
+  <circle class="pad" cx="28.609798" cy="19.91995" r="0.8" />
+  <circle class="pad" cx="28.609798" cy="23.72995" r="0.8" />
+  <circle class="pad" cx="46.389798" cy="27.539949999999997" r="0.8" />
+  <circle class="pad" cx="46.389798" cy="31.34995" r="0.8" />
+  <circle class="pad" cx="46.389798" cy="35.159949999999995" r="0.8" />
+  <circle class="pad" cx="46.389798" cy="38.96995" r="0.8" />
+  <circle class="pad" cx="46.389798" cy="42.77995" r="0.8" />
+  <circle class="pad" cx="46.389798" cy="46.589949999999995" r="0.8" />
+  <circle class="pad" cx="14.99997" cy="34.99993" r="0.8" />
+  <circle class="pad" cx="14.99997" cy="39.999919999999996" r="0.8" />
+  <circle class="pad" cx="19.999959999999998" cy="34.99993" r="0.8" />
+  <circle class="pad" cx="19.999959999999998" cy="39.999919999999996" r="0.8" />
+  <circle class="pad" cx="24.99995" cy="34.99993" r="0.8" />
+  <circle class="pad" cx="24.99995" cy="39.999919999999996" r="0.8" />
+  <circle class="pad" cx="29.99994" cy="34.99993" r="0.8" />
+  <circle class="pad" cx="29.99994" cy="39.999919999999996" r="0.8" />
+  <circle class="pad" cx="14.99997" cy="19.999959999999998" r="0.8" />
+  <circle class="pad" cx="14.99997" cy="24.99995" r="0.8" />
+  <circle class="pad" cx="19.999959999999998" cy="19.999959999999998" r="0.8" />
+  <circle class="pad" cx="19.999959999999998" cy="24.99995" r="0.8" />
+  <circle class="pad" cx="24.99995" cy="19.999959999999998" r="0.8" />
+  <circle class="pad" cx="24.99995" cy="24.99995" r="0.8" />
+  <circle class="pad" cx="29.99994" cy="19.999959999999998" r="0.8" />
+  <circle class="pad" cx="9.999979999999999" cy="44.99864" r="0.6" />
+  <circle class="pad" cx="12.53998" cy="44.99864" r="0.6" />
+  <circle class="pad" cx="15.079979999999999" cy="44.99864" r="0.6" />
+  <circle class="pad" cx="17.619979999999998" cy="44.99864" r="0.6" />
+  <circle class="pad" cx="20.159979999999997" cy="44.99864" r="0.6" />
+  <circle class="pad" cx="22.69998" cy="44.99864" r="0.6" />
+  <circle class="pad" cx="19.999959999999998" cy="14.9987" r="0.6" />
+  <circle class="pad" cx="19.999959999999998" cy="29.99994" r="0.6" />
+  <circle class="pad" cx="19.999959999999998" cy="44.99864" r="0.6" />
+  <circle class="pad" cx="34.998659999999994" cy="14.9987" r="0.6" />
+  <circle class="pad" cx="34.998659999999994" cy="29.99994" r="0.6" />
+  <circle class="pad" cx="34.998659999999994" cy="44.99864" r="0.6" />
+  <circle class="pad" cx="49.9999" cy="14.9987" r="0.6" />
+  <circle class="pad" cx="49.9999" cy="29.99994" r="0.6" />
+  <circle class="pad" cx="49.9999" cy="44.99864" r="0.6" />
+  <circle class="pad" cx="64.9986" cy="14.9987" r="0.6" />
+  <circle class="pad" cx="64.9986" cy="29.99994" r="0.6" />
+  <circle class="pad" cx="64.9986" cy="44.99864" r="0.6" />
+</svg>
