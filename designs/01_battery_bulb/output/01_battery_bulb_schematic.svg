@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="300" height="150" viewBox="0 0 100 50"
+     xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .board { fill: #FFE0B2; stroke: #333; stroke-width: 0.5; }
+    .pad { fill: #FFD700; stroke: #FF8C00; stroke-width: 0.2; }
+    .text { font-family: monospace; font-size: 2; fill: #333; }
+  </style>
+
+  <!-- Board outline -->
+  <rect class="board" x="0" y="0" width="100" height="50" />
+
+  <!-- Title -->
+  <text class="text" x="5" y="15">Simple Battery & Bulb</text>
+
+  <!-- Component pads visualization -->
+  <circle class="pad" cx="9.999979999999999" cy="39.999919999999996" r="0.8" />
+  <circle class="pad" cx="12.7" cy="39.999919999999996" r="0.8" />
+  <circle class="pad" cx="34.99993" cy="29.99994" r="0.8" />
+  <circle class="pad" cx="39.999919999999996" cy="29.99994" r="0.8" />
+  <circle class="pad" cx="39.999919999999996" cy="34.99993" r="0.8" />
+  <circle class="pad" cx="34.99993" cy="34.99993" r="0.8" />
+  <circle class="pad" cx="84.99982999999999" cy="39.999919999999996" r="0.8" />
+  <circle class="pad" cx="84.99982999999999" cy="24.99995" r="0.8" />
+  <circle class="pad" cx="9.999979999999999" cy="39.999919999999996" r="0.6" />
+  <circle class="pad" cx="12.7" cy="39.999919999999996" r="0.6" />
+  <circle class="pad" cx="34.998659999999994" cy="29.99994" r="0.6" />
+  <circle class="pad" cx="39.999919999999996" cy="29.99994" r="0.6" />
+  <circle class="pad" cx="39.999919999999996" cy="34.998659999999994" r="0.6" />
+  <circle class="pad" cx="34.998659999999994" cy="34.998659999999994" r="0.6" />
+  <circle class="pad" cx="84.99856" cy="39.999919999999996" r="0.6" />
+  <circle class="pad" cx="84.99856" cy="24.998679999999997" r="0.6" />
+</svg>

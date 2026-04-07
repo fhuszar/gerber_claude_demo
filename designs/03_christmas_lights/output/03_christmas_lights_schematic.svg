@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="300" height="225" viewBox="0 0 100 75"
+     xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .board { fill: #C8E6C9; stroke: #333; stroke-width: 0.5; }
+    .pad { fill: #FFD700; stroke: #FF8C00; stroke-width: 0.2; }
+    .text { font-family: monospace; font-size: 2; fill: #333; }
+  </style>
+
+  <!-- Board outline -->
+  <rect class="board" x="0" y="0" width="100" height="75" />
+
+  <!-- Title -->
+  <text class="text" x="5" y="15">Christmas Light Controller</text>
+
+  <!-- Component pads visualization -->
+  <circle class="pad" cx="18.649949999999997" cy="19.719797999999997" r="0.8" />
+  <circle class="pad" cx="18.649949999999997" cy="24.799798" r="0.8" />
+  <circle class="pad" cx="18.649949999999997" cy="29.879797999999997" r="0.8" />
+  <circle class="pad" cx="18.649949999999997" cy="34.959798" r="0.8" />
+  <circle class="pad" cx="31.34995" cy="40.039798" r="0.8" />
+  <circle class="pad" cx="31.34995" cy="45.119797999999996" r="0.8" />
+  <circle class="pad" cx="31.34995" cy="50.199797999999994" r="0.8" />
+  <circle class="pad" cx="31.34995" cy="55.27979799999999" r="0.8" />
+  <circle class="pad" cx="47.379889999999996" cy="12.789916" r="0.8" />
+  <circle class="pad" cx="47.379889999999996" cy="16.599916" r="0.8" />
+  <circle class="pad" cx="47.379889999999996" cy="20.409916" r="0.8" />
+  <circle class="pad" cx="47.379889999999996" cy="24.219916" r="0.8" />
+  <circle class="pad" cx="47.379889999999996" cy="28.029915999999997" r="0.8" />
+  <circle class="pad" cx="47.379889999999996" cy="31.839916000000002" r="0.8" />
+  <circle class="pad" cx="47.379889999999996" cy="35.649916" r="0.8" />
+  <circle class="pad" cx="47.379889999999996" cy="39.45991599999999" r="0.8" />
+  <circle class="pad" cx="62.61989" cy="43.269916" r="0.8" />
+  <circle class="pad" cx="62.61989" cy="47.079916" r="0.8" />
+  <circle class="pad" cx="62.61989" cy="50.889916" r="0.8" />
+  <circle class="pad" cx="62.61989" cy="54.699915999999995" r="0.8" />
+  <circle class="pad" cx="62.61989" cy="58.509916" r="0.8" />
+  <circle class="pad" cx="62.61989" cy="62.31991599999999" r="0.8" />
+  <circle class="pad" cx="62.61989" cy="66.129916" r="0.8" />
+  <circle class="pad" cx="62.61989" cy="69.939916" r="0.8" />
+  <circle class="pad" cx="47.379889999999996" cy="0.21996399999999997" r="0.8" />
+  <circle class="pad" cx="47.379889999999996" cy="4.029964" r="0.8" />
+  <circle class="pad" cx="47.379889999999996" cy="7.839963999999999" r="0.8" />
+  <circle class="pad" cx="47.379889999999996" cy="11.649963999999999" r="0.8" />
+  <circle class="pad" cx="47.379889999999996" cy="15.459964" r="0.8" />
+  <circle class="pad" cx="62.61989" cy="19.269963999999998" r="0.8" />
+  <circle class="pad" cx="4.99872" cy="29.99994" r="0.6" />
+  <circle class="pad" cx="94.99853999999999" cy="74.99858" r="0.6" />
+  <circle class="pad" cx="97.53854" cy="74.99858" r="0.6" />
+  <circle class="pad" cx="94.99853999999999" cy="24.998679999999997" r="0.6" />
+  <circle class="pad" cx="92.45853999999999" cy="24.998679999999997" r="0.6" />
+  <circle class="pad" cx="89.91854" cy="24.998679999999997" r="0.6" />
+  <circle class="pad" cx="87.37854" cy="24.998679999999997" r="0.6" />
+  <circle class="pad" cx="84.83854" cy="24.998679999999997" r="0.6" />
+  <circle class="pad" cx="82.29853999999999" cy="24.998679999999997" r="0.6" />
+  <circle class="pad" cx="14.9987" cy="9.999979999999999" r="0.6" />
+  <circle class="pad" cx="14.9987" cy="24.998679999999997" r="0.6" />
+  <circle class="pad" cx="14.9987" cy="39.999919999999996" r="0.6" />
+  <circle class="pad" cx="14.9987" cy="54.99861999999999" r="0.6" />
+  <circle class="pad" cx="14.9987" cy="69.99986" r="0.6" />
+  <circle class="pad" cx="24.998679999999997" cy="9.999979999999999" r="0.6" />
+  <circle class="pad" cx="24.998679999999997" cy="24.998679999999997" r="0.6" />
+  <circle class="pad" cx="24.998679999999997" cy="39.999919999999996" r="0.6" />
+  <circle class="pad" cx="24.998679999999997" cy="54.99861999999999" r="0.6" />
+  <circle class="pad" cx="24.998679999999997" cy="69.99986" r="0.6" />
+  <circle class="pad" cx="34.998659999999994" cy="9.999979999999999" r="0.6" />
+  <circle class="pad" cx="34.998659999999994" cy="24.998679999999997" r="0.6" />
+  <circle class="pad" cx="34.998659999999994" cy="39.999919999999996" r="0.6" />
+  <circle class="pad" cx="34.998659999999994" cy="54.99861999999999" r="0.6" />
+  <circle class="pad" cx="34.998659999999994" cy="69.99986" r="0.6" />
+  <circle class="pad" cx="44.99864" cy="9.999979999999999" r="0.6" />
+  <circle class="pad" cx="44.99864" cy="24.998679999999997" r="0.6" />
+  <circle class="pad" cx="44.99864" cy="39.999919999999996" r="0.6" />
+  <circle class="pad" cx="44.99864" cy="54.99861999999999" r="0.6" />
+  <circle class="pad" cx="44.99864" cy="69.99986" r="0.6" />
+  <circle class="pad" cx="54.99861999999999" cy="9.999979999999999" r="0.6" />
+  <circle class="pad" cx="54.99861999999999" cy="24.998679999999997" r="0.6" />
+  <circle class="pad" cx="54.99861999999999" cy="39.999919999999996" r="0.6" />
+  <circle class="pad" cx="54.99861999999999" cy="54.99861999999999" r="0.6" />
+  <circle class="pad" cx="54.99861999999999" cy="69.99986" r="0.6" />
+  <circle class="pad" cx="64.9986" cy="9.999979999999999" r="0.6" />
+  <circle class="pad" cx="64.9986" cy="24.998679999999997" r="0.6" />
+  <circle class="pad" cx="64.9986" cy="39.999919999999996" r="0.6" />
+  <circle class="pad" cx="64.9986" cy="54.99861999999999" r="0.6" />
+  <circle class="pad" cx="64.9986" cy="69.99986" r="0.6" />
+  <circle class="pad" cx="74.99858" cy="9.999979999999999" r="0.6" />
+  <circle class="pad" cx="74.99858" cy="24.998679999999997" r="0.6" />
+  <circle class="pad" cx="74.99858" cy="39.999919999999996" r="0.6" />
+  <circle class="pad" cx="74.99858" cy="54.99861999999999" r="0.6" />
+  <circle class="pad" cx="74.99858" cy="69.99986" r="0.6" />
+  <circle class="pad" cx="84.99856" cy="9.999979999999999" r="0.6" />
+  <circle class="pad" cx="84.99856" cy="24.998679999999997" r="0.6" />
+  <circle class="pad" cx="84.99856" cy="39.999919999999996" r="0.6" />
+  <circle class="pad" cx="84.99856" cy="54.99861999999999" r="0.6" />
+  <circle class="pad" cx="84.99856" cy="69.99986" r="0.6" />
+</svg>

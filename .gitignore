@@ -39,5 +39,4 @@ venv.bak/
 .DS_Store
 
 # Project-specific
-output/
-designs/*/output/
+# output/ and designs/*/output/ are now tracked for distribution

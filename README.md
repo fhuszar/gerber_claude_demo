@@ -9,18 +9,36 @@ designs/
 ├── 01_battery_bulb/          # Simple battery & bulb circuit
 │   ├── spec.md               # Design specification
 │   ├── generate.py           # Gerber generation script
-│   └── output/               # Generated .gbr and .drl files
+│   └── output/               # Generated Gerber and drill files
+│       ├── copper_top.gbr
+│       ├── edge_cuts.gbr
+│       ├── silkscreen_top.gbr
+│       ├── drill.drl
+│       └── 01_battery_bulb_schematic.svg    # Visual preview
 ├── 02_led_resistor/          # LED array with shift register
 │   ├── spec.md
 │   ├── generate.py
 │   └── output/
+│       ├── copper_top.gbr
+│       ├── copper_bottom.gbr
+│       ├── edge_cuts.gbr
+│       ├── drill.drl
+│       └── 02_led_resistor_schematic.svg
 └── 03_christmas_lights/      # Microcontroller-based LED controller
     ├── spec.md
     ├── generate.py
     └── output/
+        ├── copper_top.gbr
+        ├── copper_bottom.gbr
+        ├── edge_cuts.gbr
+        ├── drill.drl
+        └── 03_christmas_lights_schematic.svg
 
 gerber_utils.py              # Core Gerber file generation library
 generate_all.py              # Master script to generate all designs
+render_gerbers.py            # Render Gerber files using gerbv
+render_gerbers_svg.py        # Generate SVG schematic visualizations
+render_png.py                # Generate PNG board previews
 CLAUDE.md                    # Developer guidance for Claude Code
 ```
 
@@ -75,6 +93,65 @@ python3 designs/01_battery_bulb/generate.py
 ```
 
 Output files are automatically created in each design's `output/` directory.
+
+## Viewing Designs
+
+All three designs include **pre-generated Gerber and drill files** ready for fabrication or viewing.
+
+### Design Previews
+
+#### Design 01: Simple Battery & Bulb
+![Battery & Bulb Preview](designs/01_battery_bulb/output/01_battery_bulb_preview.png)
+
+#### Design 02: LED Resistor Array
+![LED Resistor Array Preview](designs/02_led_resistor/output/02_led_resistor_preview.png)
+
+#### Design 03: Christmas Light Controller
+![Christmas Light Controller Preview](designs/03_christmas_lights/output/03_christmas_lights_preview.png)
+
+### SVG Schematic Previews
+Each design also includes an SVG schematic visualization showing component pad positions and board outline:
+- `designs/01_battery_bulb/output/01_battery_bulb_schematic.svg`
+- `designs/02_led_resistor/output/02_led_resistor_schematic.svg`
+- `designs/03_christmas_lights/output/03_christmas_lights_schematic.svg`
+
+Open these directly in your browser for a detailed visual overview of pad placement.
+
+### Manufacturing Files
+Ready-to-fabricate Gerber and Excellon files are included for all designs:
+```
+designs/<design>/output/
+├── copper_top.gbr      # Top copper layer
+├── copper_bottom.gbr   # Bottom copper layer (2-layer designs)
+├── edge_cuts.gbr       # Board outline
+├── drill.drl           # Excellon drill file
+└── silkscreen_top.gbr  # Component labels (where applicable)
+```
+
+Upload these files directly to JLCPCB, PCBWay, or your preferred PCB fabricator.
+
+### Advanced Visualization with gerbv
+For detailed inspection, render Gerber files using **gerbv**:
+```bash
+# Install gerbv (macOS)
+brew install gerbv
+
+# View a design
+gerbv designs/01_battery_bulb/output/*.gbr designs/01_battery_bulb/output/*.drl
+
+# Render to PNG (requires X display on macOS)
+gerbv -w 800x600 -o design_render.png designs/01_battery_bulb/output/*.gbr
+```
+
+Generate SVG visualizations for all designs:
+```bash
+python3 render_gerbers_svg.py
+```
+
+Generate PNG board previews for all designs:
+```bash
+python3 render_png.py
+```
 
 ## Gerber File Format
 
@@ -132,10 +209,13 @@ See `CLAUDE.md` for guidance on extending this project or adding new designs.
 - **Time**: ~20 minutes (including planning, implementation, and verification)
 - **Deliverables**:
   - 1 core library (gerber_utils.py) with no external dependencies
-  - 3 complete PCB designs with specifications
-  - 15 valid Gerber/Excellon manufacturing files
+  - 3 complete PCB designs with detailed English specifications
+  - 15 pre-generated Gerber/Excellon manufacturing files (ready to fabricate)
+  - 3 PNG board previews showing pad and component positions
+  - 3 SVG schematic visualizations for detailed design review
+  - Rendering scripts (gerbv integration + SVG + PNG generation)
+  - Batch generation and visualization scripts
   - Comprehensive documentation (CLAUDE.md, README.md)
-  - Batch generation script
   - Full git history and CLAUDE.md guidance for future work
 
-This project demonstrates Claude's ability to synthesize domain knowledge (PCB design, Gerber file formats, circuit theory) and produce production-ready code artifacts.
+This project demonstrates Claude's ability to synthesize domain knowledge (PCB design, Gerber file formats, circuit theory) and produce production-ready code artifacts with complete manufacturing deliverables.
