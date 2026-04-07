@@ -38,6 +38,7 @@ gerber_utils.py              # Core Gerber file generation library
 generate_all.py              # Master script to generate all designs
 render_gerbers.py            # Render Gerber files using gerbv
 render_gerbers_svg.py        # Generate SVG schematic visualizations
+render_png.py                # Generate PNG board previews
 CLAUDE.md                    # Developer guidance for Claude Code
 ```
 
@@ -95,15 +96,26 @@ Output files are automatically created in each design's `output/` directory.
 
 ## Viewing Designs
 
-All three designs include **pre-generated Gerber and drill files** ready for fabrication or viewing:
+All three designs include **pre-generated Gerber and drill files** ready for fabrication or viewing.
+
+### Design Previews
+
+#### Design 01: Simple Battery & Bulb
+![Battery & Bulb Preview](designs/01_battery_bulb/output/01_battery_bulb_preview.png)
+
+#### Design 02: LED Resistor Array
+![LED Resistor Array Preview](designs/02_led_resistor/output/02_led_resistor_preview.png)
+
+#### Design 03: Christmas Light Controller
+![Christmas Light Controller Preview](designs/03_christmas_lights/output/03_christmas_lights_preview.png)
 
 ### SVG Schematic Previews
-Each design includes an SVG schematic visualization showing component pad positions and board outline:
+Each design also includes an SVG schematic visualization showing component pad positions and board outline:
 - `designs/01_battery_bulb/output/01_battery_bulb_schematic.svg`
 - `designs/02_led_resistor/output/02_led_resistor_schematic.svg`
 - `designs/03_christmas_lights/output/03_christmas_lights_schematic.svg`
 
-Open these directly in your browser for a quick visual overview of pad placement.
+Open these directly in your browser for a detailed visual overview of pad placement.
 
 ### Manufacturing Files
 Ready-to-fabricate Gerber and Excellon files are included for all designs:
@@ -134,6 +146,11 @@ gerbv -w 800x600 -o design_render.png designs/01_battery_bulb/output/*.gbr
 Generate SVG visualizations for all designs:
 ```bash
 python3 render_gerbers_svg.py
+```
+
+Generate PNG board previews for all designs:
+```bash
+python3 render_png.py
 ```
 
 ## Gerber File Format
@@ -194,9 +211,10 @@ See `CLAUDE.md` for guidance on extending this project or adding new designs.
   - 1 core library (gerber_utils.py) with no external dependencies
   - 3 complete PCB designs with detailed English specifications
   - 15 pre-generated Gerber/Excellon manufacturing files (ready to fabricate)
-  - 3 SVG schematic visualizations for quick design review
-  - Rendering scripts (gerbv integration + SVG generation)
-  - Batch generation and rendering scripts
+  - 3 PNG board previews showing pad and component positions
+  - 3 SVG schematic visualizations for detailed design review
+  - Rendering scripts (gerbv integration + SVG + PNG generation)
+  - Batch generation and visualization scripts
   - Comprehensive documentation (CLAUDE.md, README.md)
   - Full git history and CLAUDE.md guidance for future work
 
