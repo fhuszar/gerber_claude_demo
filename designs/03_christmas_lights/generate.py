@@ -72,8 +72,8 @@ RES_X, RES_Y = 30, 25
 # Input button (push-button, through-hole)
 BUTTON_X, BUTTON_Y = 5, 30
 
-# Power connector (USB/barrel jack, 3 pins)
-PWR_X, PWR_Y = 95, 75
+# Power connector (USB/barrel jack, 3 pins) - inset from board edge
+PWR_X, PWR_Y = 90, 68
 
 # ISP programming header (6-pin, 2.54mm pitch)
 ISP_X, ISP_Y = 95, 25
@@ -160,9 +160,11 @@ copper_top.flash(rx + PAD_0603_HALF, ry)
 copper_top.select_aperture(button_hole)
 copper_top.flash(*mm_xy(BUTTON_X, BUTTON_Y))
 
-# Place power connector
+# Place power connector (3 pins: VCC, GND, GND)
 copper_top.select_aperture(connector_hole)
 copper_top.flash(*mm_xy(PWR_X, PWR_Y))
+copper_top.flash(*mm_xy(PWR_X + 2.54, PWR_Y))
+copper_top.flash(*mm_xy(PWR_X + 5.08, PWR_Y))
 
 # Place ISP header (6 pins, 2.54mm pitch)
 for i in range(6):
