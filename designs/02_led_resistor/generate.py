@@ -131,11 +131,8 @@ copper_top.move_to(ic_x_in - 0.5, ic_y_in)
 copper_top.line_to(ic_x_in - 0.5, ic_y_in + 0.5)
 
 # === COPPER BOTTOM LAYER (Ground Plane) ===
-# For a simple ground plane, we fill the bottom with a large polygon
-# Simplified: just mark ground pour area
-gnd_pour = copper_bottom.add_aperture("circle", 0.01)
-copper_bottom.select_aperture(gnd_pour)
-copper_bottom.draw_rectangle(0, 0, BOARD_W_IN, BOARD_H_IN)
+# Fill the bottom layer with a solid ground plane using region fill
+copper_bottom.fill_rectangle(0, 0, BOARD_W_IN, BOARD_H_IN)
 
 # Add vias for ground connection (distributed across board)
 copper_bottom.select_aperture(via_small)

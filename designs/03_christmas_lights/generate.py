@@ -172,9 +172,8 @@ copper_top.move_to(ic1_x_in + 0.3, ic1_y_in - 1.2)
 copper_top.line_to(ic2_x_in, ic2_y_in)
 
 # === COPPER BOTTOM LAYER (Ground Plane) ===
-gnd_fill = copper_bottom.add_aperture("circle", 0.01)
-copper_bottom.select_aperture(gnd_fill)
-copper_bottom.draw_rectangle(0, 0, BOARD_W_IN, BOARD_H_IN)
+# Fill the bottom layer with a solid ground plane using region fill
+copper_bottom.fill_rectangle(0, 0, BOARD_W_IN, BOARD_H_IN)
 
 # Add extensive via array for ground distribution
 copper_bottom.select_aperture(via)

@@ -62,12 +62,24 @@ class GerberFile:
         self.commands.append(f"X{x_int}Y{y_int}D03*")
 
     def draw_rectangle(self, x1: float, y1: float, x2: float, y2: float):
-        """Draw a filled rectangle with the current aperture."""
+        """Draw a rectangle outline with the current aperture."""
         self.move_to(x1, y1)
         self.line_to(x2, y1)
         self.line_to(x2, y2)
         self.line_to(x1, y2)
         self.line_to(x1, y1)
+
+    def fill_rectangle(self, x1: float, y1: float, x2: float, y2: float):
+        """Draw a filled (poured) rectangle using G36/G37 region fill."""
+        def _coord(x, y):
+            return f"X{int(x * 1e5)}Y{int(y * 1e5)}"
+        self.commands.append("G36*")
+        self.commands.append(f"{_coord(x1, y1)}D02*")
+        self.commands.append(f"{_coord(x2, y1)}D01*")
+        self.commands.append(f"{_coord(x2, y2)}D01*")
+        self.commands.append(f"{_coord(x1, y2)}D01*")
+        self.commands.append(f"{_coord(x1, y1)}D01*")
+        self.commands.append("G37*")
 
     def write_file(self, filepath: str):
         """Write the Gerber file to disk."""
