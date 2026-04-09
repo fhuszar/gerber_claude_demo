@@ -89,26 +89,29 @@ button_hole = copper_top.add_aperture("circle", 0.035)
 trace_small = copper_top.add_aperture("circle", 0.006)  # 6-mil trace
 trace_power = copper_top.add_aperture("circle", 0.012)  # 12-mil power trace
 
-# Place ATtiny85 (SOIC-8)
+# Place ATtiny85 (SOIC-8: pins 1-4 left top-to-bottom, pins 5-8 right bottom-to-top)
 copper_top.select_aperture(ic_pad)
 mcu_x, mcu_y = mm_xy(MCU_X, MCU_Y)
+# SOIC-8 pin pitch: 0.05" (1.27mm), body width ~0.2" between pad centers
 for pin in range(1, 9):
-    offset_y = (pin - 1) * 0.2 - 0.7
     if pin <= 4:
-        copper_top.flash(mcu_x - 0.25, mcu_y + offset_y)
+        offset_y = (pin - 1) * 0.05 - 0.075  # pins 1-4 down left side
+        copper_top.flash(mcu_x - 0.1, mcu_y + offset_y)
     else:
-        copper_top.flash(mcu_x + 0.25, mcu_y + offset_y)
+        offset_y = (8 - pin) * 0.05 - 0.075  # pins 5-8 up right side
+        copper_top.flash(mcu_x + 0.1, mcu_y + offset_y)
 
-# Place 74HC595 ICs (SOIC-16, 2 total)
+# Place 74HC595 ICs (SOIC-16: pins 1-8 left top-to-bottom, 9-16 right bottom-to-top)
 for ic_placement in [(IC1_X, IC1_Y), (IC2_X, IC2_Y)]:
     copper_top.select_aperture(ic_pad)
     ic_x, ic_y = mm_xy(ic_placement[0], ic_placement[1])
     for pin in range(1, 17):
-        offset_y = (pin - 1) * 0.15 - 1.15
         if pin <= 8:
-            copper_top.flash(ic_x - 0.3, ic_y + offset_y)
+            offset_y = (pin - 1) * 0.05 - 0.175
+            copper_top.flash(ic_x - 0.15, ic_y + offset_y)
         else:
-            copper_top.flash(ic_x + 0.3, ic_y + offset_y)
+            offset_y = (16 - pin) * 0.05 - 0.175
+            copper_top.flash(ic_x + 0.15, ic_y + offset_y)
 
 # Place red LEDs (8 total, 0603)
 copper_top.select_aperture(smd_pad)

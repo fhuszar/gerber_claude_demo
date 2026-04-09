@@ -74,17 +74,18 @@ smd_pad_0603 = copper_top.add_aperture("rect", 0.04)
 via_small = copper_top.add_aperture("circle", 0.012)  # 0.012" = 0.3mm via
 connector_hole = copper_top.add_aperture("circle", 0.04)
 
-# Add IC pads (SOIC-16 simplified as single pad for demonstration)
+# Add IC pads (SOIC-16: pins 1-8 left side top-to-bottom, 9-16 right side bottom-to-top)
 ic_pad = copper_top.add_aperture("circle", 0.03)
 copper_top.select_aperture(ic_pad)
 ic_x, ic_y = mm_xy(IC_X, IC_Y)
-# SOIC-16 pin layout (simplified)
+# SOIC-16 pin pitch: 0.05" (1.27mm), body width ~0.3" between pad centers
 for pin in range(1, 17):
-    offset_y = (pin - 1) * 0.15 - 1.1
     if pin <= 8:
-        copper_top.flash(ic_x - 0.35, ic_y + offset_y)
+        offset_y = (pin - 1) * 0.05 - 0.175  # pins 1-8 down left side
+        copper_top.flash(ic_x - 0.15, ic_y + offset_y)
     else:
-        copper_top.flash(ic_x + 0.35, ic_y + offset_y)
+        offset_y = (16 - pin) * 0.05 - 0.175  # pins 9-16 up right side
+        copper_top.flash(ic_x + 0.15, ic_y + offset_y)
 
 # Add 0603 LED pads (8 total)
 copper_top.select_aperture(smd_pad_0603)
