@@ -80,9 +80,12 @@ ISP_X, ISP_Y = 95, 25
 
 # === COPPER TOP LAYER ===
 
+# 0603 pad-to-pad center distance: ~1.5mm (0.059")
+PAD_0603_HALF = mm_to_inch(0.75)
+
 # Define apertures
-smd_pad = copper_top.add_aperture("circle", 0.035)
-ic_pad = copper_top.add_aperture("circle", 0.025)
+smd_pad = copper_top.add_aperture("rect", 0.04, 0.03)  # 0603 SMD pad
+ic_pad = copper_top.add_aperture("rect", 0.024, 0.06)   # SOIC IC pad
 via = copper_top.add_aperture("circle", 0.012)
 connector_hole = copper_top.add_aperture("circle", 0.045)
 button_hole = copper_top.add_aperture("circle", 0.035)
@@ -113,38 +116,45 @@ for ic_placement in [(IC1_X, IC1_Y), (IC2_X, IC2_Y)]:
             offset_y = (16 - pin) * 0.05 - 0.175
             copper_top.flash(ic_x + 0.15, ic_y + offset_y)
 
-# Place red LEDs (8 total, 0603)
+# Place red LEDs (8 total, 0603, 2 pads each)
 copper_top.select_aperture(smd_pad)
 for i in range(8):
     led_x = mm_to_inch(LED_RED_START_X + i * LED_SPACING)
     led_y = mm_to_inch(LED_RED_START_Y)
-    copper_top.flash(led_x, led_y)
+    copper_top.flash(led_x - PAD_0603_HALF, led_y)  # anode
+    copper_top.flash(led_x + PAD_0603_HALF, led_y)  # cathode
 
-# Place green LEDs (8 total, 0603)
+# Place green LEDs (8 total, 0603, 2 pads each)
 for i in range(8):
     led_x = mm_to_inch(LED_GREEN_START_X + i * LED_SPACING)
     led_y = mm_to_inch(LED_GREEN_START_Y)
-    copper_top.flash(led_x, led_y)
+    copper_top.flash(led_x - PAD_0603_HALF, led_y)  # anode
+    copper_top.flash(led_x + PAD_0603_HALF, led_y)  # cathode
 
-# Place resistors (16 total, 0603, 2 rows)
+# Place resistors (16 total, 0603, 2 pads each)
 for i in range(8):
     # Red resistors
     res_x = mm_to_inch(RES_RED_START_X + i * LED_SPACING)
     res_y = mm_to_inch(RES_RED_START_Y)
-    copper_top.flash(res_x, res_y)
+    copper_top.flash(res_x - PAD_0603_HALF, res_y)
+    copper_top.flash(res_x + PAD_0603_HALF, res_y)
 
     # Green resistors
     res_x = mm_to_inch(RES_GREEN_START_X + i * LED_SPACING)
     res_y = mm_to_inch(RES_GREEN_START_Y)
-    copper_top.flash(res_x, res_y)
+    copper_top.flash(res_x - PAD_0603_HALF, res_y)
+    copper_top.flash(res_x + PAD_0603_HALF, res_y)
 
-# Place decoupling capacitors
-copper_top.flash(*mm_xy(CAP_MCU_X, CAP_MCU_Y))
-copper_top.flash(*mm_xy(CAP_IC1_X, CAP_IC1_Y))
-copper_top.flash(*mm_xy(CAP_IC2_X, CAP_IC2_Y))
+# Place decoupling capacitors (2 pads each)
+for cap_x, cap_y in [(CAP_MCU_X, CAP_MCU_Y), (CAP_IC1_X, CAP_IC1_Y), (CAP_IC2_X, CAP_IC2_Y)]:
+    cx, cy = mm_xy(cap_x, cap_y)
+    copper_top.flash(cx - PAD_0603_HALF, cy)
+    copper_top.flash(cx + PAD_0603_HALF, cy)
 
-# Place ceramic resonator (simplified as single pad)
-copper_top.flash(*mm_xy(RES_X, RES_Y))
+# Place ceramic resonator (2-pad SMD)
+rx, ry = mm_xy(RES_X, RES_Y)
+copper_top.flash(rx - PAD_0603_HALF, ry)
+copper_top.flash(rx + PAD_0603_HALF, ry)
 
 # Place button (through-hole)
 copper_top.select_aperture(button_hole)

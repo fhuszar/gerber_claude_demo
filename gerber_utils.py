@@ -28,14 +28,15 @@ class GerberFile:
         self.aperture_count = 10  # Start numbering from D10
         self.commands = []
 
-    def add_aperture(self, aperture_type: str, size: float) -> int:
+    def add_aperture(self, aperture_type: str, size: float, height: float = None) -> int:
         """
-        Add a circular aperture (flash pad) and return its D-code.
+        Add an aperture and return its D-code.
         aperture_type: "circle" or "rect"
-        size: diameter in inches
+        size: diameter (circle) or width (rect) in inches
+        height: height in inches (rect only, defaults to size if omitted)
         """
         aid = self.aperture_count
-        self.apertures[aid] = (aperture_type, size)
+        self.apertures[aid] = (aperture_type, size, height)
         self.aperture_count += 1
         return aid
 
@@ -91,11 +92,12 @@ class GerberFile:
             f.write("%MOIN*%\n")  # Inches
 
             # Aperture definitions
-            for aid, (atype, size) in sorted(self.apertures.items()):
+            for aid, (atype, size, height) in sorted(self.apertures.items()):
                 if atype == "circle":
                     f.write(f"%ADD{aid}C,{size}*%\n")
                 elif atype == "rect":
-                    f.write(f"%ADD{aid}R,{size}X{size}*%\n")
+                    h = height if height is not None else size
+                    f.write(f"%ADD{aid}R,{size}X{h}*%\n")
 
             # Commands
             for cmd in self.commands:

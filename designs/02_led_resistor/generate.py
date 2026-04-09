@@ -68,14 +68,17 @@ CONN_PITCH = mm_to_inch(2.54)
 
 # === COPPER TOP LAYER ===
 
+# 0603 pad-to-pad center distance: ~1.5mm (0.059")
+PAD_0603_HALF = mm_to_inch(0.75)  # half of pad-to-pad distance
+
 # Define apertures for SMD pads and through-holes
-# 0603 pads: typically 0.04" x 0.055"
-smd_pad_0603 = copper_top.add_aperture("rect", 0.04)
+# 0603 pads: 0.04" x 0.03" (rectangular)
+smd_pad_0603 = copper_top.add_aperture("rect", 0.04, 0.03)
 via_small = copper_top.add_aperture("circle", 0.012)  # 0.012" = 0.3mm via
 connector_hole = copper_top.add_aperture("circle", 0.04)
 
 # Add IC pads (SOIC-16: pins 1-8 left side top-to-bottom, 9-16 right side bottom-to-top)
-ic_pad = copper_top.add_aperture("circle", 0.03)
+ic_pad = copper_top.add_aperture("rect", 0.024, 0.06)
 copper_top.select_aperture(ic_pad)
 ic_x, ic_y = mm_xy(IC_X, IC_Y)
 # SOIC-16 pin pitch: 0.05" (1.27mm), body width ~0.3" between pad centers
@@ -87,27 +90,33 @@ for pin in range(1, 17):
         offset_y = (16 - pin) * 0.05 - 0.175  # pins 9-16 up right side
         copper_top.flash(ic_x + 0.15, ic_y + offset_y)
 
-# Add 0603 LED pads (8 total)
+# Add 0603 LED pads (8 total, 2 pads each)
 copper_top.select_aperture(smd_pad_0603)
 for i in range(4):
     for j in range(2):
         led_x = mm_to_inch(LED_START_X + i * LED_SPACING_X)
         led_y = mm_to_inch(LED_START_Y + j * LED_SPACING_Y)
-        copper_top.flash(led_x, led_y)
+        copper_top.flash(led_x - PAD_0603_HALF, led_y)  # pad 1 (anode)
+        copper_top.flash(led_x + PAD_0603_HALF, led_y)  # pad 2 (cathode)
 
-# Add 0603 resistor pads (8 total)
+# Add 0603 resistor pads (8 total, 2 pads each)
 for i in range(4):
     for j in range(2):
         res_x = mm_to_inch(RES_START_X + i * LED_SPACING_X)
         res_y = mm_to_inch(RES_START_Y + j * LED_SPACING_Y)
-        copper_top.flash(res_x, res_y)
+        copper_top.flash(res_x - PAD_0603_HALF, res_y)  # pad 1
+        copper_top.flash(res_x + PAD_0603_HALF, res_y)  # pad 2
 
-# Add capacitor pads
-copper_top.flash(*mm_xy(CAP1_X, CAP1_Y))
-copper_top.flash(*mm_xy(CAP2_X, CAP2_Y))
+# Add capacitor pads (2 pads each)
+for cap_x, cap_y in [(CAP1_X, CAP1_Y), (CAP2_X, CAP2_Y)]:
+    cx, cy = mm_xy(cap_x, cap_y)
+    copper_top.flash(cx - PAD_0603_HALF, cy)
+    copper_top.flash(cx + PAD_0603_HALF, cy)
 
-# Add pull-down resistor
-copper_top.flash(*mm_xy(PULLDOWN_X, PULLDOWN_Y))
+# Add pull-down resistor (2 pads)
+px, py = mm_xy(PULLDOWN_X, PULLDOWN_Y)
+copper_top.flash(px - PAD_0603_HALF, py)
+copper_top.flash(px + PAD_0603_HALF, py)
 
 # Add connector holes (6-pin, 2.54mm pitch)
 copper_top.select_aperture(connector_hole)
