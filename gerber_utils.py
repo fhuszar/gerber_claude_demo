@@ -153,6 +153,41 @@ class DrillFile:
             f.write("M30\n")
 
 
+def create_solder_mask(copper_layer, expansion=0.003):
+    """
+    Create a solder mask layer from a copper layer's pad flashes.
+    The mask has openings (slightly larger) at every pad location.
+    expansion: how much larger each mask opening is vs the pad (inches).
+    """
+    import re
+    mask = GerberFile(f"soldermask_{copper_layer.name}")
+
+    # Re-create apertures with expansion for mask openings
+    aperture_map = {}
+    for aid, (atype, size, height) in copper_layer.apertures.items():
+        if atype == "circle":
+            new_aid = mask.add_aperture("circle", size + expansion)
+        elif atype == "rect":
+            h = height if height is not None else size
+            new_aid = mask.add_aperture("rect", size + expansion, h + expansion)
+        aperture_map[aid] = new_aid
+
+    # Copy only flash (D03) commands and aperture selections that precede them
+    current_aperture = None
+    for cmd in copper_layer.commands:
+        if cmd.startswith("D") and cmd.endswith("*") and "X" not in cmd:
+            # Aperture selection like "D10*"
+            d_code = int(cmd[1:-1])
+            if d_code in aperture_map:
+                current_aperture = aperture_map[d_code]
+                mask.commands.append(f"D{current_aperture}*")
+        elif "D03*" in cmd and current_aperture is not None:
+            # Flash command — copy as mask opening
+            mask.commands.append(cmd)
+
+    return mask
+
+
 def mm_to_inch(mm: float) -> float:
     """Convert millimeters to inches."""
     return mm / 25.4

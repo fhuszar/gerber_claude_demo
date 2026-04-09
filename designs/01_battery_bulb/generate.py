@@ -14,7 +14,7 @@ import sys
 
 # Add parent directory to path for gerber_utils import
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
-from gerber_utils import GerberFile, DrillFile, mm_to_inch
+from gerber_utils import GerberFile, DrillFile, mm_to_inch, create_solder_mask
 
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), 'output')
 os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -123,10 +123,14 @@ drill.add_hole(BTN_X4, BTN_Y4, 0.063)
 drill.add_hole(BULB_X1, BULB_Y1, 0.125)
 drill.add_hole(BULB_X2, BULB_Y2, 0.125)
 
+# === SOLDER MASK ===
+mask_top = create_solder_mask(copper_top)
+
 # === WRITE FILES ===
 copper_top.write_file(os.path.join(OUTPUT_DIR, "copper_top.gbr"))
 edge_cuts.write_file(os.path.join(OUTPUT_DIR, "edge_cuts.gbr"))
 silkscreen.write_file(os.path.join(OUTPUT_DIR, "silkscreen_top.gbr"))
+mask_top.write_file(os.path.join(OUTPUT_DIR, "soldermask_top.gbr"))
 drill.write_file(os.path.join(OUTPUT_DIR, "drill.drl"))
 
 print("✓ Generated Gerber files for Design 01 (Battery & Bulb)")
@@ -135,4 +139,5 @@ print(f"  Files created:")
 print(f"    - copper_top.gbr")
 print(f"    - edge_cuts.gbr")
 print(f"    - silkscreen_top.gbr")
+print(f"    - soldermask_top.gbr")
 print(f"    - drill.drl")
