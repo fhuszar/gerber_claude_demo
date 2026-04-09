@@ -188,6 +188,39 @@ def create_solder_mask(copper_layer, expansion=0.003):
     return mask
 
 
+def create_paste_layer(copper_layer, smd_aperture_ids):
+    """
+    Create a solder paste stencil layer from specific SMD pad apertures.
+    smd_aperture_ids: list of D-codes that correspond to SMD pads (not TH or vias).
+    """
+    paste = GerberFile(f"paste_{copper_layer.name}")
+
+    # Copy the SMD apertures
+    aperture_map = {}
+    for aid in smd_aperture_ids:
+        if aid in copper_layer.apertures:
+            atype, size, height = copper_layer.apertures[aid]
+            new_aid = paste.add_aperture(atype, size, height)
+            aperture_map[aid] = new_aid
+
+    # Copy only flash commands for those apertures
+    current_aperture = None
+    active = False
+    for cmd in copper_layer.commands:
+        if cmd.startswith("D") and cmd.endswith("*") and "X" not in cmd:
+            d_code = int(cmd[1:-1])
+            if d_code in aperture_map:
+                current_aperture = aperture_map[d_code]
+                paste.commands.append(f"D{current_aperture}*")
+                active = True
+            else:
+                active = False
+        elif "D03*" in cmd and active:
+            paste.commands.append(cmd)
+
+    return paste
+
+
 def mm_to_inch(mm: float) -> float:
     """Convert millimeters to inches."""
     return mm / 25.4

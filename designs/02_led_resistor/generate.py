@@ -16,7 +16,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
-from gerber_utils import GerberFile, DrillFile, mm_to_inch, create_solder_mask
+from gerber_utils import GerberFile, DrillFile, mm_to_inch, create_solder_mask, create_paste_layer
 
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), 'output')
 os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -172,12 +172,16 @@ for x_via in [20, 35, 50, 65]:
 mask_top = create_solder_mask(copper_top)
 mask_bottom = create_solder_mask(copper_bottom)
 
+# === PASTE LAYER (SMD pads only: 0603 components and IC) ===
+paste_top = create_paste_layer(copper_top, [smd_pad_0603, ic_pad])
+
 # === WRITE FILES ===
 copper_top.write_file(os.path.join(OUTPUT_DIR, "copper_top.gbr"))
 copper_bottom.write_file(os.path.join(OUTPUT_DIR, "copper_bottom.gbr"))
 edge_cuts.write_file(os.path.join(OUTPUT_DIR, "edge_cuts.gbr"))
 mask_top.write_file(os.path.join(OUTPUT_DIR, "soldermask_top.gbr"))
 mask_bottom.write_file(os.path.join(OUTPUT_DIR, "soldermask_bottom.gbr"))
+paste_top.write_file(os.path.join(OUTPUT_DIR, "paste_top.gbr"))
 drill.write_file(os.path.join(OUTPUT_DIR, "drill.drl"))
 
 print("✓ Generated Gerber files for Design 02 (LED Resistor Array)")
@@ -185,7 +189,7 @@ print(f"  Output directory: {OUTPUT_DIR}")
 print(f"  Files created:")
 print(f"    - copper_top.gbr")
 print(f"    - copper_bottom.gbr (ground plane)")
-print(f"    - soldermask_top.gbr")
-print(f"    - soldermask_bottom.gbr")
+print(f"    - soldermask_top.gbr / soldermask_bottom.gbr")
+print(f"    - paste_top.gbr")
 print(f"    - edge_cuts.gbr")
 print(f"    - drill.drl")
