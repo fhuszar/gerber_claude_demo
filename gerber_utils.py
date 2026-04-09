@@ -139,13 +139,15 @@ class DrillFile:
 
             f.write("%\n")  # End of header
 
-            # Drill positions
-            for x, y, diameter in self.holes:
-                tool_id = tool_map[diameter]
-                x_int = int(x * 10000)  # 2.4 format
-                y_int = int(y * 10000)
+            # Drill positions grouped by tool
+            for size in sizes:
+                tool_id = tool_map[size]
                 f.write(f"T{tool_id}\n")
-                f.write(f"X{x_int:05d}Y{y_int:05d}\n")
+                for x, y, diameter in self.holes:
+                    if diameter == size:
+                        x_int = int(x * 10000)  # 2.4 format
+                        y_int = int(y * 10000)
+                        f.write(f"X{x_int:05d}Y{y_int:05d}\n")
 
             # Footer
             f.write("M30\n")
