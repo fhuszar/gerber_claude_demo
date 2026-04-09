@@ -190,11 +190,14 @@ copper_top.line_to(ic2_x_in, ic2_y_in)
 # Fill the bottom layer with a solid ground plane using region fill
 copper_bottom.fill_rectangle(0, 0, BOARD_W_IN, BOARD_H_IN)
 
-# Add extensive via array for ground distribution
-copper_bottom.select_aperture(via)
+# Add extensive via array for ground distribution (both layers)
+via_bottom = copper_bottom.add_aperture("circle", 0.012)
+copper_bottom.select_aperture(via_bottom)
+copper_top.select_aperture(via)
 for x_via in [15, 25, 35, 45, 55, 65, 75, 85]:
     for y_via in [10, 25, 40, 55, 70]:
         copper_bottom.flash(mm_to_inch(x_via), mm_to_inch(y_via))
+        copper_top.flash(mm_to_inch(x_via), mm_to_inch(y_via))
 
 # === EDGE CUTS LAYER ===
 edge = edge_cuts.add_aperture("circle", 0.01)
