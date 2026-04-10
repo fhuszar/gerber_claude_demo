@@ -86,15 +86,23 @@ copper_top.select_aperture(pad_circle_125mil)
 copper_top.flash(BULB_X1, BULB_Y1)
 copper_top.flash(BULB_X2, BULB_Y2)
 
-# Draw traces connecting components (simplified: single lines)
+# Draw traces connecting components (Manhattan routing: H+V segments)
 copper_top.select_aperture(trace_aperture)
-# Trace: Battery+ → Button pin1 → Bulb+ → Button pin2 → Battery-
+
+# Battery+ → Button pin4 (top-left): horizontal then vertical
 copper_top.move_to(BATT_X1, BATT_Y1)
-copper_top.line_to(BTN_X1, BTN_Y1)  # Battery to button
-copper_top.move_to(BTN_X2, BTN_Y2)
-copper_top.line_to(BULB_X1, BULB_Y1)  # Button to bulb
+copper_top.line_to(BTN_X4, BATT_Y1)   # horizontal to button X
+copper_top.line_to(BTN_X4, BTN_Y4)    # vertical down to button pin 4
+
+# Button pin3 (top-right) → Bulb pin1: vertical then horizontal
+copper_top.move_to(BTN_X3, BTN_Y3)
+copper_top.line_to(BTN_X3, BULB_Y1)   # vertical up to bulb Y
+copper_top.line_to(BULB_X1, BULB_Y1)  # horizontal to bulb pin 1
+
+# Bulb pin2 → Battery-: horizontal then vertical
 copper_top.move_to(BULB_X2, BULB_Y2)
-copper_top.line_to(BATT_X2, BATT_Y2)  # Bulb to ground
+copper_top.line_to(BATT_X2, BULB_Y2)  # horizontal to battery X
+copper_top.line_to(BATT_X2, BATT_Y2)  # vertical up to battery pin 2
 
 # === EDGE CUTS LAYER ===
 edge_cuts.select_aperture(edge_cuts.add_aperture("circle", 0.01))
