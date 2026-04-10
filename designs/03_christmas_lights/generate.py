@@ -178,19 +178,113 @@ for i in range(6):
     isp_y = mm_to_inch(ISP_Y)
     copper_top.flash(isp_x, isp_y)
 
-# Draw key signal traces (simplified SPI bus)
-copper_top.select_aperture(trace_small)
+# Draw signal and power traces
 mcu_x_in, mcu_y_in = mm_xy(MCU_X, MCU_Y)
 ic1_x_in, ic1_y_in = mm_xy(IC1_X, IC1_Y)
 ic2_x_in, ic2_y_in = mm_xy(IC2_X, IC2_Y)
 
-# MCU to first shift register (SPI signals)
-copper_top.move_to(mcu_x_in, mcu_y_in)
-copper_top.line_to(ic1_x_in - 0.5, ic1_y_in)
+# SPI bus: MCU pins (right side) to IC1 (left side)
+# MCU pin 5 (PB0/MOSI) → IC1 pin 14 (SER)
+# MCU pin 7 (PB2/SCK) → IC1 pin 11 (SRCLK)
+# MCU pin 6 (PB1) → IC1 pin 12 (RCLK)
+copper_top.select_aperture(trace_small)
+for offset_src, offset_dst in [(0, 2), (1, 1), (2, 0)]:
+    src_y = mcu_y_in + (3 - (4 + offset_src)) * 0.05 - 0.075
+    dst_y = ic1_y_in + (16 - (11 + offset_dst)) * 0.05 - 0.175
+    copper_top.move_to(mcu_x_in + 0.1, src_y)
+    mid_x = mcu_x_in + 0.3 + offset_src * 0.05
+    copper_top.line_to(mid_x, src_y)
+    copper_top.line_to(mid_x, dst_y)
+    copper_top.line_to(ic1_x_in - 0.15, dst_y)
 
-# First to second shift register (daisy-chain)
-copper_top.move_to(ic1_x_in + 0.3, ic1_y_in - 1.2)
-copper_top.line_to(ic2_x_in, ic2_y_in)
+# Daisy-chain: IC1 pin 9 (QH') → IC2 pin 14 (SER)
+ic1_qh_y = ic1_y_in + (16 - 9) * 0.05 - 0.175
+ic2_ser_y = ic2_y_in + (16 - 14) * 0.05 - 0.175
+copper_top.move_to(ic1_x_in + 0.15, ic1_qh_y)
+copper_top.line_to(ic1_x_in + 0.35, ic1_qh_y)
+copper_top.line_to(ic1_x_in + 0.35, ic2_ser_y)
+copper_top.line_to(ic2_x_in + 0.15, ic2_ser_y)
+
+# Shared CLK/LATCH from IC1 to IC2
+for pin in [11, 12]:  # SRCLK, RCLK
+    y1 = ic1_y_in + (16 - pin) * 0.05 - 0.175
+    y2 = ic2_y_in + (16 - pin) * 0.05 - 0.175
+    copper_top.move_to(ic1_x_in - 0.15, y1)
+    mid_x = ic1_x_in - 0.25 - (pin - 11) * 0.05
+    copper_top.line_to(mid_x, y1)
+    copper_top.line_to(mid_x, y2)
+    copper_top.line_to(ic2_x_in - 0.15, y2)
+
+# IC1 outputs (pins 1-7, left side) to red resistors
+for i in range(7):
+    pin_y = ic1_y_in + i * 0.05 - 0.175
+    res_x = mm_to_inch(RES_RED_START_X + i * LED_SPACING)
+    res_y = mm_to_inch(RES_RED_START_Y)
+    copper_top.move_to(ic1_x_in - 0.15, pin_y)
+    copper_top.line_to(res_x - PAD_0603_HALF, pin_y)
+    copper_top.line_to(res_x - PAD_0603_HALF, res_y)
+
+# IC1 pin 15 (QA, right side idx 0) to red resistor 8
+ic1_qa_y = ic1_y_in + (16 - 15) * 0.05 - 0.175
+res7_x = mm_to_inch(RES_RED_START_X + 7 * LED_SPACING)
+res7_y = mm_to_inch(RES_RED_START_Y)
+copper_top.move_to(ic1_x_in + 0.15, ic1_qa_y)
+copper_top.line_to(res7_x + PAD_0603_HALF, ic1_qa_y)
+copper_top.line_to(res7_x + PAD_0603_HALF, res7_y)
+
+# IC2 outputs to green resistors (same pattern)
+for i in range(7):
+    pin_y = ic2_y_in + i * 0.05 - 0.175
+    res_x = mm_to_inch(RES_GREEN_START_X + i * LED_SPACING)
+    res_y = mm_to_inch(RES_GREEN_START_Y)
+    copper_top.move_to(ic2_x_in - 0.15, pin_y)
+    copper_top.line_to(res_x - PAD_0603_HALF, pin_y)
+    copper_top.line_to(res_x - PAD_0603_HALF, res_y)
+
+ic2_qa_y = ic2_y_in + (16 - 15) * 0.05 - 0.175
+resg7_x = mm_to_inch(RES_GREEN_START_X + 7 * LED_SPACING)
+resg7_y = mm_to_inch(RES_GREEN_START_Y)
+copper_top.move_to(ic2_x_in + 0.15, ic2_qa_y)
+copper_top.line_to(resg7_x + PAD_0603_HALF, ic2_qa_y)
+copper_top.line_to(resg7_x + PAD_0603_HALF, resg7_y)
+
+# Resistor to LED connections (red)
+for i in range(8):
+    res_x = mm_to_inch(RES_RED_START_X + i * LED_SPACING)
+    res_y = mm_to_inch(RES_RED_START_Y)
+    led_x = mm_to_inch(LED_RED_START_X + i * LED_SPACING)
+    led_y = mm_to_inch(LED_RED_START_Y)
+    copper_top.move_to(res_x + PAD_0603_HALF, res_y)
+    copper_top.line_to(led_x - PAD_0603_HALF, led_y)
+
+# Resistor to LED connections (green)
+for i in range(8):
+    res_x = mm_to_inch(RES_GREEN_START_X + i * LED_SPACING)
+    res_y = mm_to_inch(RES_GREEN_START_Y)
+    led_x = mm_to_inch(LED_GREEN_START_X + i * LED_SPACING)
+    led_y = mm_to_inch(LED_GREEN_START_Y)
+    copper_top.move_to(res_x + PAD_0603_HALF, res_y)
+    copper_top.line_to(led_x - PAD_0603_HALF, led_y)
+
+# Power distribution: power connector to VCC bus
+copper_top.select_aperture(trace_power)
+pwr_x_in, pwr_y_in = mm_xy(PWR_X, PWR_Y)
+cap_mcu_x, cap_mcu_y = mm_xy(CAP_MCU_X, CAP_MCU_Y)
+cap_ic1_x, cap_ic1_y = mm_xy(CAP_IC1_X, CAP_IC1_Y)
+cap_ic2_x, cap_ic2_y = mm_xy(CAP_IC2_X, CAP_IC2_Y)
+
+# VCC rail across top of board
+copper_top.move_to(pwr_x_in, pwr_y_in)
+copper_top.line_to(pwr_x_in, cap_ic1_y)
+copper_top.line_to(cap_ic1_x + PAD_0603_HALF, cap_ic1_y)
+copper_top.move_to(cap_ic1_x - PAD_0603_HALF, cap_ic1_y)
+copper_top.line_to(cap_mcu_x + PAD_0603_HALF, cap_mcu_y)
+copper_top.move_to(cap_mcu_x - PAD_0603_HALF, cap_mcu_y)
+copper_top.line_to(mm_to_inch(5), cap_mcu_y)
+
+# VCC branch down to IC2 decoupling cap
+copper_top.move_to(cap_ic1_x, cap_ic1_y)
+copper_top.line_to(cap_ic2_x + PAD_0603_HALF, cap_ic2_y)
 
 # === COPPER BOTTOM LAYER (Ground Plane) ===
 # Fill the bottom layer with a solid ground plane using region fill

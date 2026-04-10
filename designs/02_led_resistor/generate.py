@@ -125,20 +125,60 @@ for i in range(6):
     conn_y = mm_to_inch(CONN_Y)
     copper_top.flash(conn_x, conn_y)
 
-# Add signal traces (simplified routing)
-trace = copper_top.add_aperture("circle", 0.008)  # 8-mil trace
-copper_top.select_aperture(trace)
+# Add signal traces
+trace = copper_top.add_aperture("circle", 0.008)  # 8-mil signal trace
+power_trace = copper_top.add_aperture("circle", 0.015)  # 15-mil power trace
 
-# Connector to IC traces
 ic_x_in, ic_y_in = mm_xy(IC_X, IC_Y)
 conn_x_start_in = mm_to_inch(CONN_X_START)
 conn_y_in = mm_to_inch(CONN_Y)
 
-# VCC and GND traces to caps
-copper_top.move_to(ic_x_in, ic_y_in)
-copper_top.line_to(ic_x_in - 0.5, ic_y_in)
-copper_top.move_to(ic_x_in - 0.5, ic_y_in)
-copper_top.line_to(ic_x_in - 0.5, ic_y_in + 0.5)
+# Connector to IC signal traces (DATA, CLK, LATCH from connector pins 1-3)
+copper_top.select_aperture(trace)
+for i in range(3):
+    cx = mm_to_inch(CONN_X_START + i * 2.54)
+    # Route down from connector to IC left-side pins
+    copper_top.move_to(cx, conn_y_in)
+    copper_top.line_to(cx, ic_y_in + (i - 1) * 0.05 - 0.175)
+    copper_top.line_to(ic_x_in - 0.15, ic_y_in + (i - 1) * 0.05 - 0.175)
+
+# VCC power trace (connector pin 5 to IC pin 16)
+copper_top.select_aperture(power_trace)
+vcc_conn_x = mm_to_inch(CONN_X_START + 4 * 2.54)
+copper_top.move_to(vcc_conn_x, conn_y_in)
+copper_top.line_to(vcc_conn_x, ic_y_in + 0.175)
+copper_top.line_to(ic_x_in + 0.15, ic_y_in + 0.175)
+
+# VCC to decoupling caps
+cap1_x, cap1_y = mm_xy(CAP1_X, CAP1_Y)
+cap2_x, cap2_y = mm_xy(CAP2_X, CAP2_Y)
+copper_top.move_to(vcc_conn_x, mm_to_inch(CAP1_Y))
+copper_top.line_to(cap1_x + PAD_0603_HALF, cap1_y)
+copper_top.move_to(cap1_x + PAD_0603_HALF, cap1_y)
+copper_top.line_to(cap2_x - PAD_0603_HALF, cap2_y)
+
+# IC outputs (pins 9-16 right side) to resistor array
+copper_top.select_aperture(trace)
+for i in range(4):
+    for j in range(2):
+        idx = i * 2 + j
+        # IC output pin on right side
+        ic_pin_y = ic_y_in + (7 - idx) * 0.05 - 0.175
+        res_x = mm_to_inch(RES_START_X + i * LED_SPACING_X)
+        res_y = mm_to_inch(RES_START_Y + j * LED_SPACING_Y)
+        copper_top.move_to(ic_x_in + 0.15, ic_pin_y)
+        copper_top.line_to(res_x - PAD_0603_HALF, ic_pin_y)
+        copper_top.line_to(res_x - PAD_0603_HALF, res_y)
+
+# Resistor to LED connections
+for i in range(4):
+    for j in range(2):
+        res_x = mm_to_inch(RES_START_X + i * LED_SPACING_X)
+        res_y = mm_to_inch(RES_START_Y + j * LED_SPACING_Y)
+        led_x = mm_to_inch(LED_START_X + i * LED_SPACING_X)
+        led_y = mm_to_inch(LED_START_Y + j * LED_SPACING_Y)
+        copper_top.move_to(res_x + PAD_0603_HALF, res_y)
+        copper_top.line_to(led_x - PAD_0603_HALF, led_y)
 
 # === COPPER BOTTOM LAYER (Ground Plane) ===
 # Fill the bottom layer with a solid ground plane using region fill
