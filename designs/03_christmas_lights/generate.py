@@ -248,23 +248,25 @@ copper_top.move_to(ic2_x_in + 0.15, ic2_qa_y)
 copper_top.line_to(resg7_x + PAD_0603_HALF, ic2_qa_y)
 copper_top.line_to(resg7_x + PAD_0603_HALF, resg7_y)
 
-# Resistor to LED connections (red)
+# Resistor to LED connections (red) — Manhattan: vertical then horizontal
 for i in range(8):
     res_x = mm_to_inch(RES_RED_START_X + i * LED_SPACING)
     res_y = mm_to_inch(RES_RED_START_Y)
     led_x = mm_to_inch(LED_RED_START_X + i * LED_SPACING)
     led_y = mm_to_inch(LED_RED_START_Y)
     copper_top.move_to(res_x + PAD_0603_HALF, res_y)
-    copper_top.line_to(led_x - PAD_0603_HALF, led_y)
+    copper_top.line_to(res_x + PAD_0603_HALF, led_y)   # vertical to LED row
+    copper_top.line_to(led_x - PAD_0603_HALF, led_y)    # horizontal to LED pad
 
-# Resistor to LED connections (green)
+# Resistor to LED connections (green) — Manhattan: vertical then horizontal
 for i in range(8):
     res_x = mm_to_inch(RES_GREEN_START_X + i * LED_SPACING)
     res_y = mm_to_inch(RES_GREEN_START_Y)
     led_x = mm_to_inch(LED_GREEN_START_X + i * LED_SPACING)
     led_y = mm_to_inch(LED_GREEN_START_Y)
     copper_top.move_to(res_x + PAD_0603_HALF, res_y)
-    copper_top.line_to(led_x - PAD_0603_HALF, led_y)
+    copper_top.line_to(res_x + PAD_0603_HALF, led_y)   # vertical to LED row
+    copper_top.line_to(led_x - PAD_0603_HALF, led_y)    # horizontal to LED pad
 
 # Power distribution: power connector to VCC bus
 copper_top.select_aperture(trace_power)
