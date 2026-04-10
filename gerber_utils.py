@@ -3,8 +3,6 @@ Utility module for generating RS-274X Gerber files and Excellon drill files.
 Provides basic primitives for traces, pads, and holes.
 """
 
-import os
-
 
 class GerberFile:
     """Represents a single Gerber (RS-274X) layer file."""
