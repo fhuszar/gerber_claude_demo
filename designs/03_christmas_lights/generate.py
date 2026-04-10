@@ -69,8 +69,10 @@ CAP_IC2_X, CAP_IC2_Y = 60, 10
 # Ceramic resonator (near MCU)
 RES_X, RES_Y = 30, 25
 
-# Input button (push-button, through-hole)
+# Input button (6mm tactile switch, through-hole, 4 pins)
 BUTTON_X, BUTTON_Y = 5, 30
+BTN_DX = mm_to_inch(3.25)  # half of 6.5mm pin spacing
+BTN_DY = mm_to_inch(2.25)  # half of 4.5mm pin spacing
 
 # Power connector (USB/barrel jack, 3 pins) - inset from board edge
 PWR_X, PWR_Y = 90, 68
@@ -156,15 +158,13 @@ rx, ry = mm_xy(RES_X, RES_Y)
 copper_top.flash(rx - PAD_0603_HALF, ry)
 copper_top.flash(rx + PAD_0603_HALF, ry)
 
-# Place button (6mm tactile switch, 4 pins in 6.5mm x 4.5mm rectangle)
+# Place button (4 pins in 6.5mm x 4.5mm rectangle)
 copper_top.select_aperture(button_hole)
 btn_x, btn_y = mm_xy(BUTTON_X, BUTTON_Y)
-btn_dx = mm_to_inch(3.25)  # half of 6.5mm pin spacing
-btn_dy = mm_to_inch(2.25)  # half of 4.5mm pin spacing
-copper_top.flash(btn_x - btn_dx, btn_y - btn_dy)  # pin 1
-copper_top.flash(btn_x + btn_dx, btn_y - btn_dy)  # pin 2
-copper_top.flash(btn_x - btn_dx, btn_y + btn_dy)  # pin 3
-copper_top.flash(btn_x + btn_dx, btn_y + btn_dy)  # pin 4
+copper_top.flash(btn_x - BTN_DX, btn_y - BTN_DY)  # pin 1
+copper_top.flash(btn_x + BTN_DX, btn_y - BTN_DY)  # pin 2
+copper_top.flash(btn_x - BTN_DX, btn_y + BTN_DY)  # pin 3
+copper_top.flash(btn_x + BTN_DX, btn_y + BTN_DY)  # pin 4
 
 # Place power connector (3 pins: VCC, GND, GND)
 copper_top.select_aperture(connector_hole)
@@ -306,14 +306,11 @@ edge_cuts.draw_rectangle(0, 0, BOARD_W_IN, BOARD_H_IN)
 
 # === DRILL FILE ===
 
-# Button holes (4 pins)
-btn_x, btn_y = mm_xy(BUTTON_X, BUTTON_Y)
-btn_dx = mm_to_inch(3.25)
-btn_dy = mm_to_inch(2.25)
-drill.add_hole(btn_x - btn_dx, btn_y - btn_dy, 0.035)
-drill.add_hole(btn_x + btn_dx, btn_y - btn_dy, 0.035)
-drill.add_hole(btn_x - btn_dx, btn_y + btn_dy, 0.035)
-drill.add_hole(btn_x + btn_dx, btn_y + btn_dy, 0.035)
+# Button holes (4 pins, reuse btn_x/btn_y from copper section)
+drill.add_hole(btn_x - BTN_DX, btn_y - BTN_DY, 0.035)
+drill.add_hole(btn_x + BTN_DX, btn_y - BTN_DY, 0.035)
+drill.add_hole(btn_x - BTN_DX, btn_y + BTN_DY, 0.035)
+drill.add_hole(btn_x + BTN_DX, btn_y + BTN_DY, 0.035)
 
 # Power connector holes (3-pin)
 drill.add_hole(*mm_xy(PWR_X, PWR_Y), 0.045)
