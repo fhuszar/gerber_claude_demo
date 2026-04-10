@@ -3,21 +3,6 @@ Utility module for generating RS-274X Gerber files and Excellon drill files.
 Provides basic primitives for traces, pads, and holes.
 """
 
-import os
-from dataclasses import dataclass
-from typing import List, Tuple
-
-
-@dataclass
-class Point:
-    """A point in 2D space (in millimeters)."""
-    x: float
-    y: float
-
-    def to_inches(self) -> Tuple[float, float]:
-        """Convert to inches (Gerber default)."""
-        return (self.x / 25.4, self.y / 25.4)
-
 
 class GerberFile:
     """Represents a single Gerber (RS-274X) layer file."""
@@ -28,14 +13,15 @@ class GerberFile:
         self.aperture_count = 10  # Start numbering from D10
         self.commands = []
 
-    def add_aperture(self, aperture_type: str, size: float) -> int:
+    def add_aperture(self, aperture_type: str, size: float, height: float = None) -> int:
         """
-        Add a circular aperture (flash pad) and return its D-code.
+        Add an aperture and return its D-code.
         aperture_type: "circle" or "rect"
-        size: diameter in inches
+        size: diameter (circle) or width (rect) in inches
+        height: height in inches (rect only, defaults to size if omitted)
         """
         aid = self.aperture_count
-        self.apertures[aid] = (aperture_type, size)
+        self.apertures[aid] = (aperture_type, size, height)
         self.aperture_count += 1
         return aid
 
@@ -62,12 +48,24 @@ class GerberFile:
         self.commands.append(f"X{x_int}Y{y_int}D03*")
 
     def draw_rectangle(self, x1: float, y1: float, x2: float, y2: float):
-        """Draw a filled rectangle with the current aperture."""
+        """Draw a rectangle outline with the current aperture."""
         self.move_to(x1, y1)
         self.line_to(x2, y1)
         self.line_to(x2, y2)
         self.line_to(x1, y2)
         self.line_to(x1, y1)
+
+    def fill_rectangle(self, x1: float, y1: float, x2: float, y2: float):
+        """Draw a filled (poured) rectangle using G36/G37 region fill."""
+        def _coord(x, y):
+            return f"X{int(x * 1e5)}Y{int(y * 1e5)}"
+        self.commands.append("G36*")
+        self.commands.append(f"{_coord(x1, y1)}D02*")
+        self.commands.append(f"{_coord(x2, y1)}D01*")
+        self.commands.append(f"{_coord(x2, y2)}D01*")
+        self.commands.append(f"{_coord(x1, y2)}D01*")
+        self.commands.append(f"{_coord(x1, y1)}D01*")
+        self.commands.append("G37*")
 
     def write_file(self, filepath: str):
         """Write the Gerber file to disk."""
@@ -79,11 +77,12 @@ class GerberFile:
             f.write("%MOIN*%\n")  # Inches
 
             # Aperture definitions
-            for aid, (atype, size) in sorted(self.apertures.items()):
+            for aid, (atype, size, height) in sorted(self.apertures.items()):
                 if atype == "circle":
                     f.write(f"%ADD{aid}C,{size}*%\n")
                 elif atype == "rect":
-                    f.write(f"%ADD{aid}R,{size}X{size}*%\n")
+                    h = height if height is not None else size
+                    f.write(f"%ADD{aid}R,{size}X{h}*%\n")
 
             # Commands
             for cmd in self.commands:
@@ -125,16 +124,85 @@ class DrillFile:
 
             f.write("%\n")  # End of header
 
-            # Drill positions
-            for x, y, diameter in self.holes:
-                tool_id = tool_map[diameter]
-                x_int = int(x * 10000)  # 2.4 format
-                y_int = int(y * 10000)
+            # Drill positions grouped by tool
+            for size in sizes:
+                tool_id = tool_map[size]
                 f.write(f"T{tool_id}\n")
-                f.write(f"X{x_int:05d}Y{y_int:05d}\n")
+                for x, y, diameter in self.holes:
+                    if diameter == size:
+                        x_int = int(x * 10000)  # 2.4 format
+                        y_int = int(y * 10000)
+                        f.write(f"X{x_int:05d}Y{y_int:05d}\n")
 
             # Footer
             f.write("M30\n")
+
+
+def create_solder_mask(copper_layer, expansion=0.003):
+    """
+    Create a solder mask layer from a copper layer's pad flashes.
+    The mask has openings (slightly larger) at every pad location.
+    expansion: how much larger each mask opening is vs the pad (inches).
+    """
+    mask = GerberFile(f"soldermask_{copper_layer.name}")
+
+    # Re-create apertures with expansion for mask openings
+    aperture_map = {}
+    for aid, (atype, size, height) in copper_layer.apertures.items():
+        if atype == "circle":
+            new_aid = mask.add_aperture("circle", size + expansion)
+        elif atype == "rect":
+            h = height if height is not None else size
+            new_aid = mask.add_aperture("rect", size + expansion, h + expansion)
+        aperture_map[aid] = new_aid
+
+    # Copy only flash (D03) commands and aperture selections that precede them
+    current_aperture = None
+    for cmd in copper_layer.commands:
+        if cmd.startswith("D") and cmd.endswith("*") and "X" not in cmd:
+            # Aperture selection like "D10*"
+            d_code = int(cmd[1:-1])
+            if d_code in aperture_map:
+                current_aperture = aperture_map[d_code]
+                mask.commands.append(f"D{current_aperture}*")
+        elif "D03*" in cmd and current_aperture is not None:
+            # Flash command — copy as mask opening
+            mask.commands.append(cmd)
+
+    return mask
+
+
+def create_paste_layer(copper_layer, smd_aperture_ids):
+    """
+    Create a solder paste stencil layer from specific SMD pad apertures.
+    smd_aperture_ids: list of D-codes that correspond to SMD pads (not TH or vias).
+    """
+    paste = GerberFile(f"paste_{copper_layer.name}")
+
+    # Copy the SMD apertures
+    aperture_map = {}
+    for aid in smd_aperture_ids:
+        if aid in copper_layer.apertures:
+            atype, size, height = copper_layer.apertures[aid]
+            new_aid = paste.add_aperture(atype, size, height)
+            aperture_map[aid] = new_aid
+
+    # Copy only flash commands for those apertures
+    current_aperture = None
+    active = False
+    for cmd in copper_layer.commands:
+        if cmd.startswith("D") and cmd.endswith("*") and "X" not in cmd:
+            d_code = int(cmd[1:-1])
+            if d_code in aperture_map:
+                current_aperture = aperture_map[d_code]
+                paste.commands.append(f"D{current_aperture}*")
+                active = True
+            else:
+                active = False
+        elif "D03*" in cmd and active:
+            paste.commands.append(cmd)
+
+    return paste
 
 
 def mm_to_inch(mm: float) -> float:

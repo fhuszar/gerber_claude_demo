@@ -16,7 +16,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
-from gerber_utils import GerberFile, DrillFile, mm_to_inch
+from gerber_utils import GerberFile, DrillFile, mm_to_inch, create_solder_mask, create_paste_layer
 
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), 'output')
 os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -68,45 +68,55 @@ CONN_PITCH = mm_to_inch(2.54)
 
 # === COPPER TOP LAYER ===
 
+# 0603 pad-to-pad center distance: ~1.5mm (0.059")
+PAD_0603_HALF = mm_to_inch(0.75)  # half of pad-to-pad distance
+
 # Define apertures for SMD pads and through-holes
-# 0603 pads: typically 0.04" x 0.055"
-smd_pad_0603 = copper_top.add_aperture("rect", 0.04)
+# 0603 pads: 0.04" x 0.03" (rectangular)
+smd_pad_0603 = copper_top.add_aperture("rect", 0.04, 0.03)
 via_small = copper_top.add_aperture("circle", 0.012)  # 0.012" = 0.3mm via
 connector_hole = copper_top.add_aperture("circle", 0.04)
 
-# Add IC pads (SOIC-16 simplified as single pad for demonstration)
-ic_pad = copper_top.add_aperture("circle", 0.03)
+# Add IC pads (SOIC-16: pins 1-8 left side top-to-bottom, 9-16 right side bottom-to-top)
+ic_pad = copper_top.add_aperture("rect", 0.024, 0.06)
 copper_top.select_aperture(ic_pad)
 ic_x, ic_y = mm_xy(IC_X, IC_Y)
-# SOIC-16 pin layout (simplified)
+# SOIC-16 pin pitch: 0.05" (1.27mm), body width ~0.3" between pad centers
 for pin in range(1, 17):
-    offset_y = (pin - 1) * 0.15 - 1.1
     if pin <= 8:
-        copper_top.flash(ic_x - 0.35, ic_y + offset_y)
+        offset_y = (pin - 1) * 0.05 - 0.175  # pins 1-8 down left side
+        copper_top.flash(ic_x - 0.15, ic_y + offset_y)
     else:
-        copper_top.flash(ic_x + 0.35, ic_y + offset_y)
+        offset_y = (16 - pin) * 0.05 - 0.175  # pins 9-16 up right side
+        copper_top.flash(ic_x + 0.15, ic_y + offset_y)
 
-# Add 0603 LED pads (8 total)
+# Add 0603 LED pads (8 total, 2 pads each)
 copper_top.select_aperture(smd_pad_0603)
 for i in range(4):
     for j in range(2):
         led_x = mm_to_inch(LED_START_X + i * LED_SPACING_X)
         led_y = mm_to_inch(LED_START_Y + j * LED_SPACING_Y)
-        copper_top.flash(led_x, led_y)
+        copper_top.flash(led_x - PAD_0603_HALF, led_y)  # pad 1 (anode)
+        copper_top.flash(led_x + PAD_0603_HALF, led_y)  # pad 2 (cathode)
 
-# Add 0603 resistor pads (8 total)
+# Add 0603 resistor pads (8 total, 2 pads each)
 for i in range(4):
     for j in range(2):
         res_x = mm_to_inch(RES_START_X + i * LED_SPACING_X)
         res_y = mm_to_inch(RES_START_Y + j * LED_SPACING_Y)
-        copper_top.flash(res_x, res_y)
+        copper_top.flash(res_x - PAD_0603_HALF, res_y)  # pad 1
+        copper_top.flash(res_x + PAD_0603_HALF, res_y)  # pad 2
 
-# Add capacitor pads
-copper_top.flash(*mm_xy(CAP1_X, CAP1_Y))
-copper_top.flash(*mm_xy(CAP2_X, CAP2_Y))
+# Add capacitor pads (2 pads each)
+for cap_x, cap_y in [(CAP1_X, CAP1_Y), (CAP2_X, CAP2_Y)]:
+    cx, cy = mm_xy(cap_x, cap_y)
+    copper_top.flash(cx - PAD_0603_HALF, cy)
+    copper_top.flash(cx + PAD_0603_HALF, cy)
 
-# Add pull-down resistor
-copper_top.flash(*mm_xy(PULLDOWN_X, PULLDOWN_Y))
+# Add pull-down resistor (2 pads)
+px, py = mm_xy(PULLDOWN_X, PULLDOWN_Y)
+copper_top.flash(px - PAD_0603_HALF, py)
+copper_top.flash(px + PAD_0603_HALF, py)
 
 # Add connector holes (6-pin, 2.54mm pitch)
 copper_top.select_aperture(connector_hole)
@@ -115,33 +125,73 @@ for i in range(6):
     conn_y = mm_to_inch(CONN_Y)
     copper_top.flash(conn_x, conn_y)
 
-# Add signal traces (simplified routing)
-trace = copper_top.add_aperture("circle", 0.008)  # 8-mil trace
-copper_top.select_aperture(trace)
+# Add signal traces
+trace = copper_top.add_aperture("circle", 0.008)  # 8-mil signal trace
+power_trace = copper_top.add_aperture("circle", 0.015)  # 15-mil power trace
 
-# Connector to IC traces
 ic_x_in, ic_y_in = mm_xy(IC_X, IC_Y)
 conn_x_start_in = mm_to_inch(CONN_X_START)
 conn_y_in = mm_to_inch(CONN_Y)
 
-# VCC and GND traces to caps
-copper_top.move_to(ic_x_in, ic_y_in)
-copper_top.line_to(ic_x_in - 0.5, ic_y_in)
-copper_top.move_to(ic_x_in - 0.5, ic_y_in)
-copper_top.line_to(ic_x_in - 0.5, ic_y_in + 0.5)
+# Connector to IC signal traces (DATA, CLK, LATCH from connector pins 1-3)
+copper_top.select_aperture(trace)
+for i in range(3):
+    cx = mm_to_inch(CONN_X_START + i * 2.54)
+    # Route down from connector to IC left-side pins
+    copper_top.move_to(cx, conn_y_in)
+    copper_top.line_to(cx, ic_y_in + (i - 1) * 0.05 - 0.175)
+    copper_top.line_to(ic_x_in - 0.15, ic_y_in + (i - 1) * 0.05 - 0.175)
+
+# VCC power trace (connector pin 5 to IC pin 16)
+copper_top.select_aperture(power_trace)
+vcc_conn_x = mm_to_inch(CONN_X_START + 4 * 2.54)
+copper_top.move_to(vcc_conn_x, conn_y_in)
+copper_top.line_to(vcc_conn_x, ic_y_in + 0.175)
+copper_top.line_to(ic_x_in + 0.15, ic_y_in + 0.175)
+
+# VCC to decoupling caps
+cap1_x, cap1_y = mm_xy(CAP1_X, CAP1_Y)
+cap2_x, cap2_y = mm_xy(CAP2_X, CAP2_Y)
+copper_top.move_to(vcc_conn_x, mm_to_inch(CAP1_Y))
+copper_top.line_to(cap1_x + PAD_0603_HALF, cap1_y)
+copper_top.move_to(cap1_x + PAD_0603_HALF, cap1_y)
+copper_top.line_to(cap2_x - PAD_0603_HALF, cap2_y)
+
+# IC outputs (pins 9-16 right side) to resistor array
+copper_top.select_aperture(trace)
+for i in range(4):
+    for j in range(2):
+        idx = i * 2 + j
+        # IC output pin on right side
+        ic_pin_y = ic_y_in + (7 - idx) * 0.05 - 0.175
+        res_x = mm_to_inch(RES_START_X + i * LED_SPACING_X)
+        res_y = mm_to_inch(RES_START_Y + j * LED_SPACING_Y)
+        copper_top.move_to(ic_x_in + 0.15, ic_pin_y)
+        copper_top.line_to(res_x - PAD_0603_HALF, ic_pin_y)
+        copper_top.line_to(res_x - PAD_0603_HALF, res_y)
+
+# Resistor to LED connections
+for i in range(4):
+    for j in range(2):
+        res_x = mm_to_inch(RES_START_X + i * LED_SPACING_X)
+        res_y = mm_to_inch(RES_START_Y + j * LED_SPACING_Y)
+        led_x = mm_to_inch(LED_START_X + i * LED_SPACING_X)
+        led_y = mm_to_inch(LED_START_Y + j * LED_SPACING_Y)
+        copper_top.move_to(res_x + PAD_0603_HALF, res_y)
+        copper_top.line_to(led_x - PAD_0603_HALF, led_y)
 
 # === COPPER BOTTOM LAYER (Ground Plane) ===
-# For a simple ground plane, we fill the bottom with a large polygon
-# Simplified: just mark ground pour area
-gnd_pour = copper_bottom.add_aperture("circle", 0.01)
-copper_bottom.select_aperture(gnd_pour)
-copper_bottom.draw_rectangle(0, 0, BOARD_W_IN, BOARD_H_IN)
+# Fill the bottom layer with a solid ground plane using region fill
+copper_bottom.fill_rectangle(0, 0, BOARD_W_IN, BOARD_H_IN)
 
-# Add vias for ground connection (distributed across board)
-copper_bottom.select_aperture(via_small)
+# Add vias for ground connection (distributed across board, both layers)
+via_bottom = copper_bottom.add_aperture("circle", 0.012)
+copper_bottom.select_aperture(via_bottom)
+copper_top.select_aperture(via_small)
 for x_via in [20, 35, 50, 65]:
     for y_via in [15, 30, 45]:
         copper_bottom.flash(mm_to_inch(x_via), mm_to_inch(y_via))
+        copper_top.flash(mm_to_inch(x_via), mm_to_inch(y_via))
 
 # === EDGE CUTS LAYER ===
 edge_aperture = edge_cuts.add_aperture("circle", 0.01)
@@ -158,10 +208,20 @@ for x_via in [20, 35, 50, 65]:
     for y_via in [15, 30, 45]:
         drill.add_hole(mm_to_inch(x_via), mm_to_inch(y_via), 0.012)
 
+# === SOLDER MASK ===
+mask_top = create_solder_mask(copper_top)
+mask_bottom = create_solder_mask(copper_bottom)
+
+# === PASTE LAYER (SMD pads only: 0603 components and IC) ===
+paste_top = create_paste_layer(copper_top, [smd_pad_0603, ic_pad])
+
 # === WRITE FILES ===
 copper_top.write_file(os.path.join(OUTPUT_DIR, "copper_top.gbr"))
 copper_bottom.write_file(os.path.join(OUTPUT_DIR, "copper_bottom.gbr"))
 edge_cuts.write_file(os.path.join(OUTPUT_DIR, "edge_cuts.gbr"))
+mask_top.write_file(os.path.join(OUTPUT_DIR, "soldermask_top.gbr"))
+mask_bottom.write_file(os.path.join(OUTPUT_DIR, "soldermask_bottom.gbr"))
+paste_top.write_file(os.path.join(OUTPUT_DIR, "paste_top.gbr"))
 drill.write_file(os.path.join(OUTPUT_DIR, "drill.drl"))
 
 print("✓ Generated Gerber files for Design 02 (LED Resistor Array)")
@@ -169,5 +229,7 @@ print(f"  Output directory: {OUTPUT_DIR}")
 print(f"  Files created:")
 print(f"    - copper_top.gbr")
 print(f"    - copper_bottom.gbr (ground plane)")
+print(f"    - soldermask_top.gbr / soldermask_bottom.gbr")
+print(f"    - paste_top.gbr")
 print(f"    - edge_cuts.gbr")
 print(f"    - drill.drl")

@@ -14,7 +14,7 @@ import sys
 
 # Add parent directory to path for gerber_utils import
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
-from gerber_utils import GerberFile, DrillFile, mm_to_inch
+from gerber_utils import GerberFile, DrillFile, mm_to_inch, create_solder_mask
 
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), 'output')
 os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -102,11 +102,42 @@ edge_cuts.select_aperture(edge_cuts.add_aperture("circle", 0.01))
 edge_cuts.draw_rectangle(0, 0, BOARD_W_IN, BOARD_H_IN)
 
 # === SILKSCREEN LAYER ===
-silk_pad = silkscreen.add_aperture("circle", 0.02)
-silkscreen.select_aperture(silk_pad)
-# Label pads (note: actual text rendering would require a text aperture,
-# simplified here with markers)
-# This is a placeholder; real silkscreen would use special text commands
+silk_line = silkscreen.add_aperture("circle", 0.008)  # 8-mil line for outlines
+silk_dot = silkscreen.add_aperture("circle", 0.03)    # 30-mil dot for pin-1 markers
+
+# Battery connector outline and pin-1 marker
+silkscreen.select_aperture(silk_line)
+batt_cx = (BATT_X1 + BATT_X2) / 2
+batt_cy = BATT_Y1
+batt_hw, batt_hh = 0.15, 0.1  # half-width, half-height of outline
+silkscreen.move_to(batt_cx - batt_hw, batt_cy - batt_hh)
+silkscreen.line_to(batt_cx + batt_hw, batt_cy - batt_hh)
+silkscreen.line_to(batt_cx + batt_hw, batt_cy + batt_hh)
+silkscreen.line_to(batt_cx - batt_hw, batt_cy + batt_hh)
+silkscreen.line_to(batt_cx - batt_hw, batt_cy - batt_hh)
+silkscreen.select_aperture(silk_dot)
+silkscreen.flash(BATT_X1, BATT_Y1 + 0.12)  # + marker near pin 1
+
+# Push-button outline
+silkscreen.select_aperture(silk_line)
+btn_cx = (BTN_X1 + BTN_X2) / 2
+btn_cy = (BTN_Y1 + BTN_Y4) / 2
+btn_hw, btn_hh = 0.15, 0.15
+silkscreen.move_to(btn_cx - btn_hw, btn_cy - btn_hh)
+silkscreen.line_to(btn_cx + btn_hw, btn_cy - btn_hh)
+silkscreen.line_to(btn_cx + btn_hw, btn_cy + btn_hh)
+silkscreen.line_to(btn_cx - btn_hw, btn_cy + btn_hh)
+silkscreen.line_to(btn_cx - btn_hw, btn_cy - btn_hh)
+
+# Bulb socket outline
+bulb_cx = BULB_X1
+bulb_cy = (BULB_Y1 + BULB_Y2) / 2
+bulb_hw, bulb_hh = 0.12, 0.4
+silkscreen.move_to(bulb_cx - bulb_hw, bulb_cy - bulb_hh)
+silkscreen.line_to(bulb_cx + bulb_hw, bulb_cy - bulb_hh)
+silkscreen.line_to(bulb_cx + bulb_hw, bulb_cy + bulb_hh)
+silkscreen.line_to(bulb_cx - bulb_hw, bulb_cy + bulb_hh)
+silkscreen.line_to(bulb_cx - bulb_hw, bulb_cy - bulb_hh)
 
 # === DRILL FILE ===
 # Battery connector holes
@@ -123,10 +154,14 @@ drill.add_hole(BTN_X4, BTN_Y4, 0.063)
 drill.add_hole(BULB_X1, BULB_Y1, 0.125)
 drill.add_hole(BULB_X2, BULB_Y2, 0.125)
 
+# === SOLDER MASK ===
+mask_top = create_solder_mask(copper_top)
+
 # === WRITE FILES ===
 copper_top.write_file(os.path.join(OUTPUT_DIR, "copper_top.gbr"))
 edge_cuts.write_file(os.path.join(OUTPUT_DIR, "edge_cuts.gbr"))
 silkscreen.write_file(os.path.join(OUTPUT_DIR, "silkscreen_top.gbr"))
+mask_top.write_file(os.path.join(OUTPUT_DIR, "soldermask_top.gbr"))
 drill.write_file(os.path.join(OUTPUT_DIR, "drill.drl"))
 
 print("✓ Generated Gerber files for Design 01 (Battery & Bulb)")
@@ -135,4 +170,5 @@ print(f"  Files created:")
 print(f"    - copper_top.gbr")
 print(f"    - edge_cuts.gbr")
 print(f"    - silkscreen_top.gbr")
+print(f"    - soldermask_top.gbr")
 print(f"    - drill.drl")
