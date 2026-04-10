@@ -144,7 +144,6 @@ def create_solder_mask(copper_layer, expansion=0.003):
     The mask has openings (slightly larger) at every pad location.
     expansion: how much larger each mask opening is vs the pad (inches).
     """
-    import re
     mask = GerberFile(f"soldermask_{copper_layer.name}")
 
     # Re-create apertures with expansion for mask openings
