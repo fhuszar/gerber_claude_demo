@@ -94,7 +94,7 @@ def parse_drill_positions(drl_file):
     return positions
 
 
-def inch_to_px(x_inch, y_inch, width_mm, height_mm):
+def inch_to_px(x_inch, y_inch):
     """Convert inch coordinates to pixel coordinates."""
     x_mm = x_inch * 25.4
     y_mm = y_inch * 25.4
@@ -127,8 +127,8 @@ def generate_png(design_name, design_info):
     # Draw traces first (under pads)
     trace_color = design_info.get('trace_color', design_info['pad_outline'])
     for (x1, y1), (x2, y2) in traces:
-        px1, py1 = inch_to_px(x1, y1, w_mm, h_mm)
-        px2, py2 = inch_to_px(x2, y2, w_mm, h_mm)
+        px1, py1 = inch_to_px(x1, y1)
+        px2, py2 = inch_to_px(x2, y2)
         if all(0 <= v <= dim for v, dim in [(px1, width_px), (py1, height_px),
                                              (px2, width_px), (py2, height_px)]):
             draw.line([(px1, py1), (px2, py2)], fill=trace_color, width=2)
