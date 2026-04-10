@@ -4,19 +4,6 @@ Provides basic primitives for traces, pads, and holes.
 """
 
 import os
-from dataclasses import dataclass
-from typing import List, Tuple
-
-
-@dataclass
-class Point:
-    """A point in 2D space (in millimeters)."""
-    x: float
-    y: float
-
-    def to_inches(self) -> Tuple[float, float]:
-        """Convert to inches (Gerber default)."""
-        return (self.x / 25.4, self.y / 25.4)
 
 
 class GerberFile:
