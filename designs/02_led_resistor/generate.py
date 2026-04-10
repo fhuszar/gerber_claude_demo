@@ -170,7 +170,7 @@ for i in range(4):
         copper_top.line_to(res_x - PAD_0603_HALF, ic_pin_y)
         copper_top.line_to(res_x - PAD_0603_HALF, res_y)
 
-# Resistor to LED connections
+# Resistor to LED connections (Manhattan: vertical then horizontal)
 for i in range(4):
     for j in range(2):
         res_x = mm_to_inch(RES_START_X + i * LED_SPACING_X)
@@ -178,7 +178,8 @@ for i in range(4):
         led_x = mm_to_inch(LED_START_X + i * LED_SPACING_X)
         led_y = mm_to_inch(LED_START_Y + j * LED_SPACING_Y)
         copper_top.move_to(res_x + PAD_0603_HALF, res_y)
-        copper_top.line_to(led_x - PAD_0603_HALF, led_y)
+        copper_top.line_to(res_x + PAD_0603_HALF, led_y)   # vertical to LED row
+        copper_top.line_to(led_x - PAD_0603_HALF, led_y)    # horizontal to LED pad
 
 # === COPPER BOTTOM LAYER (Ground Plane) ===
 # Fill the bottom layer with a solid ground plane using region fill
